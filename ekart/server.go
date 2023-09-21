@@ -23,16 +23,12 @@ var (
 )
 
 func main() {
-
 	server = gin.Default()
 	InitializeDatabase()
 	InitializeProducts()
-	ctx1, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx1, cancel:= context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	defer mongoClient.Disconnect(ctx1)
-	//mongoClient,err = config.ConnectDataBase()
-	if err != nil {
-		fmt.Println("Error in connecting to the database")
-	}
 	routes.AppRoutes(server)
 	server.Run(":4000")
 }

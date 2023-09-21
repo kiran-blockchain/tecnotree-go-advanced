@@ -27,4 +27,5 @@ func AppRoutes(r *gin.Engine){
 func ProductRoutes(r *gin.Engine,p controllers.ProductController){
 	product:= r.Group("/api/product") //localhost:4000/api/product/
 	product.POST("/insert",p.InsertProduct)
+	product.GET("/getProducts",p.GetProducts)
 }

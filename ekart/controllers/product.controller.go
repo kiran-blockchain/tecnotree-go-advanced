@@ -35,3 +35,12 @@ func (p ProductController) InsertProduct(c *gin.Context) {
 	//call the service.insert
 	//p.ProductService.InsertOne()
 }
+
+func (p ProductController) GetProducts(c *gin.Context) {
+	result, err := p.ProductService.GetProducts()
+	if err != nil {
+		return
+	} else {
+		c.IndentedJSON(http.StatusCreated, result)
+	}
+}

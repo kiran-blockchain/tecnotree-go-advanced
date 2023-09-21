@@ -7,4 +7,5 @@ type Product struct{
 	Name string           `json:"name" bson:"name,required"`
 	Price float64          `json:"price" bson:"price,required"`
 	Description string     `json:"description" bson:"description,required"`
+	images [] string        `json:"images" bson:"images,required"`
 }
