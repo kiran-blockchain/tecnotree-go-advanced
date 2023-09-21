@@ -44,3 +44,17 @@ func (p ProductController) GetProducts(c *gin.Context) {
 		c.IndentedJSON(http.StatusCreated, result)
 	}
 }
+func (p ProductController) UpdateProduct(c *gin.Context) {
+	var product entities.Product
+	err := c.BindJSON(&product)
+	if err != nil {
+		return
+	}
+	fmt.Println(product.ID)
+	result, err := p.ProductService.UpdateProduct(&product)
+	if err != nil {
+		return
+	} else {
+		c.IndentedJSON(http.StatusOK, result)
+	}
+}

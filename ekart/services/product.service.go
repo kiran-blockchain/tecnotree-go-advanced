@@ -60,3 +60,14 @@ func (p *ProductService)GetProducts()([]*entities.Product,error){
 	}
 
 }
+func (p *ProductService)UpdateProduct(product *entities.Product)(string,error){
+
+    filter := bson.D{{"_id", product.ID}}
+	updateQuery := bson.D{{"$set", bson.D{{"description",product.Description}}}}
+	_,err:=p.Product.UpdateOne(context.Background(),filter,updateQuery)
+	 if err!=nil{
+		return "",err
+	 }else{
+		return "Record Updated Successfully",nil
+	 }
+}
