@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	//"github.com/kiran-blockchain/ekart/constants"
 	"github.com/kiran-blockchain/ekart/entities"
 	"github.com/kiran-blockchain/ekart/interfaces"
 	"github.com/kiran-blockchain/ekart/utils"
@@ -52,17 +53,38 @@ func (uc *UserService) Register(user *entities.User) (*entities.SignupResponse, 
 		return nil, errors.New("could not create index for email")
 	}
 
-	var newUser *entities.SignupResponse
-	query := bson.M{"_id": res.InsertedID}
+	var newUser entities.SignupResponse
+	query := bson.D{{"_id",res.InsertedID}}
 	fmt.Println(res.InsertedID)
 
-   err2 := uc.UserCollection.FindOne(ctx, query).Decode(&newUser)
-   fmt.Println(uc.UserCollection.FindOne(ctx, query))
-	
+	err2 := uc.UserCollection.FindOne(ctx, query).Decode(&newUser)
+	fmt.Println(uc.UserCollection.FindOne(ctx, query))
+
 	if err2 != nil {
 		fmt.Println(err2)
 		return nil, err2
 	}
 
-	return newUser, nil
+	return &newUser, nil
+}
+
+func (uc *UserService) Login(user *entities.Login)(*entities.LoginResponse,error){
+	ctx := context.Background()
+	query := bson.M{"email": strings.ToLower(user.Email)}
+	var loginResult *entities.User
+	err:=uc.UserCollection.FindOne(ctx,query).Decode(&loginResult)
+	if err!=nil{
+		fmt.Println(err.Error())
+		return nil,err
+	}
+    err2:= utils.VerifyPassword(loginResult.Password,user.Password)
+	if err!=nil{
+		return nil,err2
+	}
+	token,err:=utils.GenerateToken(loginResult.Email)
+	if err!=nil{
+		fmt.Println(err.Error())
+		return nil,err
+	}
+	return &entities.LoginResponse{Token: token},nil
 }

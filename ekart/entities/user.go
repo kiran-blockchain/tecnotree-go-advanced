@@ -18,7 +18,14 @@ type User struct {
 
 
 type SignupResponse struct {
-	Name               string    `json:"name" bson:"name" binding:"required"`
-	Email              string    `json:"email" bson:"email" binding:"required"`
+	Name               string    `json:"name" bson:"name"`
+	Email              string    `json:"email" bson:"email"`
 	CreatedAt          time.Time `json:"created_at" bson:"created_at"`
+}
+type Login struct{
+	Email              string    `json:"email" bson:"email" binding:"required"`
+	Password           string    `json:"password" bson:"password" binding:"required,min=8"`
+}
+type LoginResponse struct {
+	Token string      `json:"token" bson:"token" binding:"required"`
 }

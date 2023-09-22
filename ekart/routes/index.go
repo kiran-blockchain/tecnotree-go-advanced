@@ -11,6 +11,7 @@ func AuthRoutes(r *gin.Engine,a controllers.AuthController){
 	user:= r.Group("/api/user")
 
 	user.POST("/register",a.Register)
+	user.POST("/login",a.Login)
 	
 	//product routes
 	

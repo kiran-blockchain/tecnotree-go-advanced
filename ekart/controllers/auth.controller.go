@@ -31,3 +31,18 @@ func(a *AuthController) Register(c *gin.Context){
 		c.IndentedJSON(http.StatusCreated, result)
 	}
 }
+func(a *AuthController) Login(c *gin.Context){
+	fmt.Println("Invoked controller")
+	var user entities.Login
+	err := c.BindJSON(&user)
+	if err != nil {
+		return
+	}
+	result, err := a.AuthService.Login(&user)
+	fmt.Println(result)
+	if err != nil {
+		return
+	} else {
+		c.IndentedJSON(http.StatusCreated, result)
+	}
+}
