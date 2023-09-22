@@ -25,11 +25,11 @@ var (
 func main() {
 	server = gin.Default()
 	InitializeDatabase()
+	InitializeAuthentication()
 	InitializeProducts()
-	ctx1, cancel:= context.WithTimeout(context.Background(), 10*time.Second)
+	ctx1, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	defer mongoClient.Disconnect(ctx1)
-	routes.AppRoutes(server)
 	server.Run(":4000")
 }
 
@@ -46,4 +46,11 @@ func InitializeProducts() {
 	productSvc := services.InitProductService(productCollection)
 	productCtrl := controllers.InitProductController(productSvc)
 	routes.ProductRoutes(server, *productCtrl)
+}
+
+func InitializeAuthentication() {
+	collection := config.GetCollection(mongoClient, "ekart", "users")
+	authSvc := services.InitUserService(collection)
+	authCtrl := controllers.InitAuthController(authSvc)
+	routes.AuthRoutes(server, *authCtrl)
 }

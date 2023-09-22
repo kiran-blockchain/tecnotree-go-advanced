@@ -6,14 +6,12 @@ import (
 )
 
 
-func AppRoutes(r *gin.Engine){
+func AuthRoutes(r *gin.Engine,a controllers.AuthController){
 	//user routes
 	user:= r.Group("/api/user")
 
-	user.POST("/register",controllers.HandleRegister)
-	user.POST("/login",controllers.HandleLogin)
-	user.GET("/logout",controllers.HandleLogout)
-	user.GET("/profile/:id",controllers.HandleGetProfile)
+	user.POST("/register",a.Register)
+	
 	//product routes
 	
 	
