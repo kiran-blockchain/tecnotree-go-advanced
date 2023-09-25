@@ -1,45 +1,19 @@
 package utils
 
 import (
-	"encoding/base64"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/kiran-blockchain/ekart/constants"
+	"github.com/kiran-blockchain/ekart/entities"
 )
 
-func CreateToken(ttl time.Duration, payload interface{}, privateKey string) (string, error) {
-	decodedPrivateKey, err := base64.StdEncoding.DecodeString(privateKey)
-	if err != nil {
-		return "", fmt.Errorf("could not decode key: %w", err)
-	}
-	key, err := jwt.ParseRSAPrivateKeyFromPEM(decodedPrivateKey)
 
-	if err != nil {
-		return "", fmt.Errorf("create: parse key: %w", err)
-	}
-
-	now := time.Now().UTC()
-
-	claims := make(jwt.MapClaims)
-	claims["sub"] = payload
-	claims["exp"] = now.Add(ttl).Unix()
-	claims["iat"] = now.Unix()
-	claims["nbf"] = now.Unix()
-
-	token, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(key)
-
-	if err != nil {
-		return "", fmt.Errorf("create: sign token: %w", err)
-	}
-
-	return token, nil
-}
 func GenerateToken( email string)(string,error){
 
     token := jwt.New(jwt.SigningMethodHS256)
-	
 	claims := token.Claims.(jwt.MapClaims)
 	claims["exp"] = time.Now().Add(10 * time.Minute)
 	claims["authorized"] = true
@@ -48,33 +22,48 @@ func GenerateToken( email string)(string,error){
 	return tokenString,err
 }
 
-func ValidateToken(token string, publicKey string) (interface{}, error) {
-	decodedPublicKey, err := base64.StdEncoding.DecodeString(publicKey)
-	if err != nil {
-		return nil, fmt.Errorf("could not decode: %w", err)
-	}
+func DecodeToken(tokenInput string) (bool){
+	token, err := jwt.Parse(tokenInput, func(token *jwt.Token) (interface{}, error) {
+        return []byte(constants.SecretKey), nil
+    })
 
-	key, err := jwt.ParseRSAPublicKeyFromPEM(decodedPublicKey)
+    if err == nil && token.Valid {
+        fmt.Println("Your token is valid.  I like your style.")
 
-	if err != nil {
-		return "", fmt.Errorf("validate: parse key: %w", err)
-	}
 
-	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected method: %s", t.Header["alg"])
-		}
-		return key, nil
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("validate: %w", err)
-	}
-
-	claims, ok := parsedToken.Claims.(jwt.MapClaims)
-	if !ok || !parsedToken.Valid {
-		return nil, fmt.Errorf("validate: invalid token")
-	}
-
-	return claims["sub"], nil
+    } else {
+        fmt.Println("This token is terrible!  I cannot accept this.")
+		return false
+    }
+	return token.Valid
 }
+
+func GenerateAllTokens(email string, firstName string, userType string, uid string) (signedToken string, signedRefreshToken string, err error) {
+    claims := &entities.SignedDetails{
+        Email:      email,
+        First_name: firstName,
+        Uid:        uid,
+        User_type:  userType,
+        StandardClaims: jwt.StandardClaims{
+            ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
+        },
+    }
+ 
+    refreshClaims := &entities.SignedDetails{
+        StandardClaims: jwt.StandardClaims{
+            ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),
+        },
+    }
+ 
+    token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(constants.SecretKey))
+    refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(constants.SecretKey))
+ 
+    if err != nil {
+        log.Panic(err)
+        return
+    }
+ 
+    return token, refreshToken, err
+}
+
+

@@ -54,7 +54,7 @@ func (uc *UserService) Register(user *entities.User) (*entities.SignupResponse, 
 	}
 
 	var newUser entities.SignupResponse
-	query := bson.D{{"_id",res.InsertedID}}
+	query := bson.D{{"_id", res.InsertedID}}
 	fmt.Println(res.InsertedID)
 
 	err2 := uc.UserCollection.FindOne(ctx, query).Decode(&newUser)
@@ -68,23 +68,37 @@ func (uc *UserService) Register(user *entities.User) (*entities.SignupResponse, 
 	return &newUser, nil
 }
 
-func (uc *UserService) Login(user *entities.Login)(*entities.LoginResponse,error){
+func (uc *UserService) Login(user *entities.Login) (*entities.LoginResponse, error) {
 	ctx := context.Background()
 	query := bson.M{"email": strings.ToLower(user.Email)}
 	var loginResult *entities.User
-	err:=uc.UserCollection.FindOne(ctx,query).Decode(&loginResult)
-	if err!=nil{
+	err := uc.UserCollection.FindOne(ctx, query).Decode(&loginResult)
+	if err != nil {
 		fmt.Println(err.Error())
-		return nil,err
+		return nil, err
 	}
-    err2:= utils.VerifyPassword(loginResult.Password,user.Password)
-	if err!=nil{
-		return nil,err2
+	//compare hashsed password with user entered password
+	err2 := utils.VerifyPassword(loginResult.Password, user.Password)
+	if err != nil {
+		return nil, err2
 	}
-	token,err:=utils.GenerateToken(loginResult.Email)
-	if err!=nil{
+	// Generate the JWT token
+	token, refreshToken, err := utils.GenerateAllTokens(loginResult.Email, loginResult.Name, loginResult.Role, loginResult.ID.Hex())
+	if err != nil {
 		fmt.Println(err.Error())
-		return nil,err
+		return nil, err
 	}
-	return &entities.LoginResponse{Token: token},nil
+	return &entities.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
+}
+
+func (uc *UserService) GetUser(userId string) (*entities.User, error) {
+	ctx := context.Background()
+	var user entities.User
+	err := uc.UserCollection.FindOne(ctx, bson.M{"_id": userId}).Decode(&user)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	return &user, nil
+
 }

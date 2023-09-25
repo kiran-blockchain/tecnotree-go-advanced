@@ -52,5 +52,7 @@ func InitializeAuthentication() {
 	collection := config.GetCollection(mongoClient, "ekart", "users")
 	authSvc := services.InitUserService(collection)
 	authCtrl := controllers.InitAuthController(authSvc)
+	routes.UserRoutes(server, *authCtrl)
 	routes.AuthRoutes(server, *authCtrl)
+
 }

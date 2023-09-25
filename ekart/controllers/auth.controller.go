@@ -46,3 +46,15 @@ func(a *AuthController) Login(c *gin.Context){
 		c.IndentedJSON(http.StatusCreated, result)
 	}
 }
+
+func(a *AuthController) GetUser(c *gin.Context){
+	userId := c.Param("uid")
+	var user *entities.User
+	user,err:=a.AuthService.GetUser(userId)
+	if err!=nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+
+}
