@@ -60,3 +60,15 @@ func (a *AuthController) GetUser() gin.HandlerFunc {
 		c.JSON(http.StatusOK, user)
 	}
 }
+func (a *AuthController) GetAllUsers() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := c.Request.Header.Get("uid")
+		var user *entities.User
+		user, err := a.AuthService.GetUser(userId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, user)
+	}
+}

@@ -30,6 +30,21 @@ func Authenticate() gin.HandlerFunc {
         c.Set("uid", claims.Uid)
         c.Set("user_type", claims.User_type)
         c.Request.Header.Set("uid",claims.Uid)
+        c.Request.Header.Set("user_type", claims.User_type)
         c.Next()
+    }
+}
+
+func Authorize()gin.HandlerFunc{
+    return func(c *gin.Context) {
+        user_type := c.Request.Header.Get("user_type")
+        if user_type =="admin"{
+            c.Next()
+        }else{
+            c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User is not authorized")})
+            c.Abort()
+            return
+        }
+        
     }
 }

@@ -16,6 +16,8 @@ func UserRoutes(r *gin.Engine,a controllers.AuthController){
 func AuthRoutes(incomingRoutes *gin.Engine, a controllers.AuthController) {
 	incomingRoutes.Use(middleware.Authenticate())
     incomingRoutes.GET("/api/users/usersdata", a.GetUser())
+	incomingRoutes.Use(middleware.Authorize())
+	incomingRoutes.GET("/api/users/getallusers", a.GetAllUsers())
 
 }
 func ProductRoutes(r *gin.Engine,p controllers.ProductController){
