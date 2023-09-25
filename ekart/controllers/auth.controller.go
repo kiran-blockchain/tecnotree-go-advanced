@@ -8,6 +8,7 @@ import (
 	"github.com/kiran-blockchain/ekart/entities"
 	"github.com/kiran-blockchain/ekart/interfaces"
 )
+
 type AuthController struct {
 	AuthService interfaces.IUser
 }
@@ -16,7 +17,7 @@ func InitAuthController(authService interfaces.IUser) *AuthController {
 	return &AuthController{AuthService: authService}
 }
 
-func(a *AuthController) Register(c *gin.Context){
+func (a *AuthController) Register(c *gin.Context) {
 	fmt.Println("Invoked controller")
 	var user entities.User
 	err := c.BindJSON(&user)
@@ -31,7 +32,7 @@ func(a *AuthController) Register(c *gin.Context){
 		c.IndentedJSON(http.StatusCreated, result)
 	}
 }
-func(a *AuthController) Login(c *gin.Context){
+func (a *AuthController) Login(c *gin.Context) {
 	fmt.Println("Invoked controller")
 	var user entities.Login
 	err := c.BindJSON(&user)
@@ -47,14 +48,15 @@ func(a *AuthController) Login(c *gin.Context){
 	}
 }
 
-func(a *AuthController) GetUser(c *gin.Context){
-	userId := c.Param("uid")
-	var user *entities.User
-	user,err:=a.AuthService.GetUser(userId)
-	if err!=nil{
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+func (a *AuthController) GetUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := c.Request.Header.Get("uid")
+		var user *entities.User
+		user, err := a.AuthService.GetUser(userId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, user)
 	}
-	c.JSON(http.StatusOK, user)
-
 }

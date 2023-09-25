@@ -5,7 +5,7 @@ import (
 	"github.com/kiran-blockchain/ekart/controllers"
 	"github.com/kiran-blockchain/ekart/middleware"
 )
-	
+
 
 func UserRoutes(r *gin.Engine,a controllers.AuthController){
 	//user routes
@@ -15,7 +15,7 @@ func UserRoutes(r *gin.Engine,a controllers.AuthController){
 }
 func AuthRoutes(incomingRoutes *gin.Engine, a controllers.AuthController) {
     incomingRoutes.Use(middleware.Authenticate())
-    incomingRoutes.GET("/usersdata", a.GetUser)
+    incomingRoutes.GET("/usersdata", a.GetUser())
 }
 func ProductRoutes(r *gin.Engine,p controllers.ProductController){
 	product:= r.Group("/api/product") //localhost:4000/api/product/

@@ -14,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserService struct {
@@ -94,7 +95,8 @@ func (uc *UserService) Login(user *entities.Login) (*entities.LoginResponse, err
 func (uc *UserService) GetUser(userId string) (*entities.User, error) {
 	ctx := context.Background()
 	var user entities.User
-	err := uc.UserCollection.FindOne(ctx, bson.M{"_id": userId}).Decode(&user)
+	uid,_:= primitive.ObjectIDFromHex(userId)
+	err := uc.UserCollection.FindOne(ctx, bson.M{"_id": uid}).Decode(&user)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err
