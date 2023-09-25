@@ -14,8 +14,9 @@ func UserRoutes(r *gin.Engine,a controllers.AuthController){
 	user.POST("/login",a.Login)
 }
 func AuthRoutes(incomingRoutes *gin.Engine, a controllers.AuthController) {
-    incomingRoutes.Use(middleware.Authenticate())
-    incomingRoutes.GET("/usersdata", a.GetUser())
+	incomingRoutes.Use(middleware.Authenticate())
+    incomingRoutes.GET("/api/users/usersdata", a.GetUser())
+
 }
 func ProductRoutes(r *gin.Engine,p controllers.ProductController){
 	product:= r.Group("/api/product") //localhost:4000/api/product/
