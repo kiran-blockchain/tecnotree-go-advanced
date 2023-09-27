@@ -1,0 +1,20 @@
+syntax  ="proto3";
+option go_package="github.com/kiran-blockchain/tecnotree-go-advanced/profile";
+
+package profile;
+
+message Profile {
+    string Name =1;
+    string Email =2;
+    string Password=3;
+}
+
+message ProfileResponse {
+    string Id=1;
+    string Success =2;
+    string ErrorMessage=3;
+}
+
+service ProfileService{
+    rpc CreateProfile(Profile) returns(ProfileResponse);
+}
